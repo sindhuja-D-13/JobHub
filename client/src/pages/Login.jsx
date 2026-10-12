@@ -3,7 +3,8 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Auth.css";
 
-const API = "http://localhost:5000";
+// Deployed JobHub backend URL
+const API = "https://jobhub-4u5b.onrender.com";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -72,16 +73,15 @@ export default function Login() {
                 );
             }
 
-            // Save the session in localStorage so the dashboard
-            // can read the same token after navigation or refresh.
+            // Save the login session
             localStorage.setItem("token", data.token);
             localStorage.setItem("user", JSON.stringify(data.user));
 
-            // Remove any older sessionStorage copies.
+            // Remove older sessionStorage copies
             sessionStorage.removeItem("token");
             sessionStorage.removeItem("user");
 
-            // Navigate to the dashboard for the account role.
+            // Open the correct dashboard
             navigate(dashboard, { replace: true });
 
         } catch (error) {
@@ -92,7 +92,7 @@ export default function Login() {
                 error.message === "Failed to fetch"
             ) {
                 setMessage(
-                    "Cannot connect to JobHub server. Make sure your backend is running on port 5000."
+                    "Cannot connect to JobHub. Please check your internet connection or try again shortly."
                 );
             } else {
                 setMessage(

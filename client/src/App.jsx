@@ -1,10 +1,10 @@
 
 import React from "react";
 import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
+    BrowserRouter,
+    Routes,
+    Route,
+    Navigate,
 } from "react-router-dom";
 
 // Authentication pages
@@ -33,209 +33,236 @@ import ShortlistApprovals from "./pages/admin/ShortlistApprovals";
 import Students from "./pages/admin/Students";
 import Companies from "./pages/admin/Companies";
 
-// Protected routes
+// Protected route component
 function ProtectedRoute({ children, allowedRoles }) {
-  const token = localStorage.getItem("token");
-  const storedUser = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
 
-  if (!token || !storedUser) {
-    return <Navigate to="/" replace />;
-  }
+    // Require a login session
+    if (!token || !storedUser) {
+        return <Navigate to="/" replace />;
+    }
 
-  let user;
+    let user;
 
-  try {
-    user = JSON.parse(storedUser);
-  } catch {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    return <Navigate to="/" replace />;
-  }
+    try {
+        user = JSON.parse(storedUser);
+    } catch {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
 
-  if (
-    !user ||
-    !user.role ||
-    !allowedRoles.includes(String(user.role).toLowerCase())
-  ) {
-    return <Navigate to="/" replace />;
-  }
+        return <Navigate to="/" replace />;
+    }
 
-  return children;
+    // Check the user's role
+    const role = String(user?.role || "").toLowerCase();
+
+    if (!allowedRoles.includes(role)) {
+        if (role === "student") {
+            return <Navigate to="/student/dashboard" replace />;
+        }
+
+        if (role === "company") {
+            return <Navigate to="/company/dashboard" replace />;
+        }
+
+        if (role === "admin") {
+            return <Navigate to="/admin/dashboard" replace />;
+        }
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        return <Navigate to="/" replace />;
+    }
+
+    return children;
 }
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        {/* Authentication */}
-        <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+    return (
+        <BrowserRouter>
+            <Routes>
+                {/* Authentication */}
+                <Route path="/" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
 
-        {/* Student */}
-        <Route
-          path="/student/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["student"]}>
-              <StudentDashboard />
-            </ProtectedRoute>
-          }
-        />
+                {/* Student routes */}
+                <Route
+                    path="/student/dashboard"
+                    element={
+                        <ProtectedRoute allowedRoles={["student"]}>
+                            <StudentDashboard />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/student/jobs"
-          element={
-            <ProtectedRoute allowedRoles={["student"]}>
-              <Jobs />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/student/jobs"
+                    element={
+                        <ProtectedRoute allowedRoles={["student"]}>
+                            <Jobs />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/student/jobs/:id"
-          element={
-            <ProtectedRoute allowedRoles={["student"]}>
-              <JobDetails />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/student/jobs/:id"
+                    element={
+                        <ProtectedRoute allowedRoles={["student"]}>
+                            <JobDetails />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/student/apply/:jobId"
-          element={
-            <ProtectedRoute allowedRoles={["student"]}>
-              <ApplyJob />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/student/apply"
-          element={<Navigate to="/student/jobs" replace />}
-        />
+                <Route
+                    path="/student/apply/:jobId"
+                    element={
+                        <ProtectedRoute allowedRoles={["student"]}>
+                            <ApplyJob />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/student/applications"
-          element={
-            <ProtectedRoute allowedRoles={["student"]}>
-              <MyApplications />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/student/apply"
+                    element={
+                        <Navigate to="/student/jobs" replace />
+                    }
+                />
 
-        <Route
-          path="/student/profile"
-          element={
-            <ProtectedRoute allowedRoles={["student"]}>
-              <StudentProfile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={<Navigate to="/student/profile" replace />}
-        />
+                <Route
+                    path="/student/applications"
+                    element={
+                        <ProtectedRoute allowedRoles={["student"]}>
+                            <MyApplications />
+                        </ProtectedRoute>
+                    }
+                />
 
-        {/* Company */}
-        <Route
-          path="/company/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["company"]}>
-              <CompanyDashboard />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/student/profile"
+                    element={
+                        <ProtectedRoute allowedRoles={["student"]}>
+                            <StudentProfile />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/company/post-job"
-          element={
-            <ProtectedRoute allowedRoles={["company"]}>
-              <PostJob />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/profile"
+                    element={
+                        <Navigate to="/student/profile" replace />
+                    }
+                />
 
-        <Route
-          path="/company/jobs"
-          element={
-            <ProtectedRoute allowedRoles={["company"]}>
-              <CompanyJobs />
-            </ProtectedRoute>
-          }
-        />
+                {/* Company routes */}
+                <Route
+                    path="/company/dashboard"
+                    element={
+                        <ProtectedRoute allowedRoles={["company"]}>
+                            <CompanyDashboard />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/company/applications"
-          element={
-            <ProtectedRoute allowedRoles={["company"]}>
-              <CompanyApplications />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/company/post-job"
+                    element={
+                        <ProtectedRoute allowedRoles={["company"]}>
+                            <PostJob />
+                        </ProtectedRoute>
+                    }
+                />
 
-        {/* Admin */}
-        <Route
-          path="/admin"
-          element={<Navigate to="/admin/dashboard" replace />}
-        />
+                <Route
+                    path="/company/jobs"
+                    element={
+                        <ProtectedRoute allowedRoles={["company"]}>
+                            <CompanyJobs />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/admin/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/company/applications"
+                    element={
+                        <ProtectedRoute allowedRoles={["company"]}>
+                            <CompanyApplications />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/admin/job-approvals"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <JobApprovals />
-            </ProtectedRoute>
-          }
-        />
+                {/* Admin routes */}
+                <Route
+                    path="/admin"
+                    element={
+                        <Navigate to="/admin/dashboard" replace />
+                    }
+                />
 
-        <Route
-          path="/admin/applications"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <AdminApplications />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/admin/dashboard"
+                    element={
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                            <AdminDashboard />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/admin/students"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <Students />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/admin/job-approvals"
+                    element={
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                            <JobApprovals />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/admin/companies"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <Companies />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/admin/applications"
+                    element={
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                            <AdminApplications />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/admin/shortlist-approvals"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <ShortlistApprovals />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/admin/students"
+                    element={
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                            <Students />
+                        </ProtectedRoute>
+                    }
+                />
 
-        {/* Unknown paths */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
-  );
+                <Route
+                    path="/admin/companies"
+                    element={
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                            <Companies />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/admin/shortlist-approvals"
+                    element={
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                            <ShortlistApprovals />
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* Unknown paths */}
+                <Route
+                    path="*"
+                    element={<Navigate to="/" replace />}
+                />
+            </Routes>
+        </BrowserRouter>
+    );
 }
 
 export default App;
