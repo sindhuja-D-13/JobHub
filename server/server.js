@@ -1,50 +1,6 @@
 
-const mysql = require("mysql2/promise");
-const fs = require("fs");
-const path = require("path");
-require("dotenv").config();
+const PORT = process.env.PORT || 5000;
 
-const sslOptions = process.env.DB_SSL === "true"
-    ? {
-        ca: fs.readFileSync(
-            path.join(__dirname, "ca.pem"),
-            "utf8"
-        ),
-        rejectUnauthorized: true
-    }
-    : undefined;
-
-const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT || 3306),
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-    ssl: sslOptions
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`JobHub server running on port ${PORT}`);
 });
-
-async function checkConnection() {
-    let connection;
-
-    try {
-        connection = await pool.getConnection();
-        await connection.ping();
-
-        console.log("MySQL connected successfully!");
-        console.log("Database:", process.env.DB_NAME);
-        console.log("Host:", process.env.DB_HOST);
-    } catch (error) {
-        console.error("MySQL connection failed!");
-        console.error("Error code:", error.code);
-        console.error("Error message:", error.message);
-    } finally {
-        if (connection) connection.release();
-    }
-}
-
-checkConnection();
-
-module.exports = pool;
