@@ -1,0 +1,515 @@
+
+/* ================================
+   JobHub - Post Job Flat Design
+   Blue + White + Floating Animation
+================================ */
+
+.dashboard-page {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --text: #172554;
+  --muted: #64748b;
+  --border: #e2e8f0;
+
+  display: flex;
+  min-height: 100vh;
+  background: #f5f8ff;
+  color: var(--text);
+  font-family: "Inter", "Segoe UI", sans-serif;
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Floating background decorations */
+
+.dashboard-page::before,
+.dashboard-page::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.dashboard-page::before {
+  width: 260px;
+  height: 260px;
+  top: 8%;
+  right: 5%;
+  background: rgba(59, 130, 246, 0.09);
+  animation: floatBubble 8s ease-in-out infinite;
+}
+
+.dashboard-page::after {
+  width: 180px;
+  height: 180px;
+  bottom: 5%;
+  left: 22%;
+  background: rgba(129, 140, 248, 0.09);
+  animation: floatBubble 10s ease-in-out infinite reverse;
+}
+
+@keyframes floatBubble {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(-22px) translateX(12px);
+  }
+}
+
+/* ================================
+   Sidebar
+================================ */
+
+.dashboard-page .sidebar {
+  width: 245px;
+  min-width: 245px;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 30px 18px;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-right: 1px solid #e8eef8;
+  box-shadow: 4px 0 24px rgba(30, 64, 175, 0.035);
+  z-index: 2;
+}
+
+.sidebar-logo {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -1.3px;
+  color: #172554;
+  padding: 0 12px;
+  margin-bottom: 48px;
+}
+
+.sidebar-logo span {
+  color: var(--primary);
+}
+
+.dashboard-page .sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dashboard-page .sidebar nav button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  padding: 15px 16px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.dashboard-page .sidebar nav button:hover {
+  color: var(--primary);
+  background: #eff6ff;
+  transform: translateX(4px);
+}
+
+.dashboard-page .sidebar nav button.active {
+  color: #ffffff;
+  background: var(--primary);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.19);
+}
+
+.dashboard-page .sidebar .logout {
+  margin-top: auto;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #fee2e2;
+  border-radius: 12px;
+  background: #fff7f7;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.dashboard-page .sidebar .logout:hover {
+  background: #fee2e2;
+  transform: translateY(-2px);
+}
+
+/* ================================
+   Main Content
+================================ */
+
+.dashboard-page .dashboard-main {
+  flex: 1;
+  min-width: 0;
+  padding: 35px 38px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  animation: slideUp 0.65s ease both;
+}
+
+.job-submit-message {
+  margin-bottom: 18px;
+  padding: 13px 15px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.job-submit-message.success {
+  background: #eaf8f0;
+  color: #187647;
+}
+
+.job-submit-message.error {
+  background: #fff0f1;
+  color: #b42338;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================
+   Page Heading
+================================ */
+
+.page-title {
+  margin-bottom: 28px;
+}
+
+.page-title h1 {
+  margin: 0 0 10px;
+  color: #172554;
+  font-size: clamp(27px, 3vw, 35px);
+  line-height: 1.25;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.page-title p {
+  margin: 0;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* ================================
+   Form Card
+================================ */
+
+.application-form {
+  position: relative;
+  background: #ffffff;
+  padding: 32px;
+  border: 1px solid #e7edf8;
+  border-radius: 20px;
+  box-shadow: 0 12px 38px rgba(30, 64, 175, 0.055);
+  transition: box-shadow 0.3s ease;
+}
+
+.application-form:hover {
+  box-shadow: 0 18px 45px rgba(30, 64, 175, 0.09);
+}
+
+.application-form h2 {
+  margin: 0 0 26px;
+  padding-bottom: 17px;
+  border-bottom: 1px solid #edf1f8;
+  color: #1e3a8a;
+  font-size: 20px;
+  font-weight: 750;
+}
+
+/* ================================
+   Form Grid and Fields
+================================ */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 23px 22px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 9px;
+}
+
+.form-group.full {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  padding: 13px 15px;
+  border: 1px solid #dbe4f0;
+  border-radius: 10px;
+  outline: none;
+  background: #fbfdff;
+  color: #172554;
+  font: inherit;
+  font-size: 14px;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.form-group textarea {
+  min-height: 125px;
+  resize: vertical;
+  line-height: 1.65;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #94a3b8;
+}
+
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover {
+  border-color: #a5bffb;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #3b82f6;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.11);
+}
+
+.form-group select {
+  cursor: pointer;
+}
+
+/* ================================
+   Admin Approval Notice
+================================ */
+
+.approval-note {
+  margin-top: 30px;
+  padding: 19px 21px;
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid #2563eb;
+  border-radius: 12px;
+  background: #eff6ff;
+  animation: fadeIn 0.8s ease both;
+}
+
+.approval-note strong {
+  display: block;
+  margin-bottom: 7px;
+  color: #1d4ed8;
+  font-size: 14px;
+}
+
+.approval-note p {
+  margin: 0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ================================
+   Action Buttons
+================================ */
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 13px;
+  margin-top: 28px;
+  padding-top: 23px;
+  border-top: 1px solid #edf1f8;
+}
+
+.form-actions button {
+  min-height: 47px;
+  padding: 0 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.secondary-btn {
+  border: 1px solid #dbe4f0;
+  background: #ffffff;
+  color: #475569;
+}
+
+.secondary-btn:hover {
+  background: #f1f5f9;
+  transform: translateY(-2px);
+}
+
+.primary-btn {
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 6px 15px rgba(37, 99, 235, 0.18);
+}
+
+.primary-btn:hover {
+  background: var(--primary-dark);
+  box-shadow: 0 9px 22px rgba(37, 99, 235, 0.25);
+  transform: translateY(-2px);
+}
+
+.form-actions button:active {
+  transform: scale(0.98);
+}
+
+/* ================================
+   Responsive Design
+================================ */
+
+@media (max-width: 900px) {
+  .dashboard-page .sidebar {
+    width: 205px;
+    min-width: 205px;
+    padding: 25px 13px;
+  }
+
+  .dashboard-page .dashboard-main {
+    padding: 28px 22px;
+  }
+
+  .application-form {
+    padding: 25px;
+  }
+}
+
+@media (max-width: 650px) {
+  .dashboard-page {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .dashboard-page .sidebar {
+    width: 100%;
+    min-width: 0;
+    min-height: auto;
+    padding: 17px;
+    border-right: none;
+    border-bottom: 1px solid #e8eef8;
+  }
+
+  .sidebar-logo {
+    margin-bottom: 17px;
+  }
+
+  .dashboard-page .sidebar nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .dashboard-page .sidebar nav button {
+    width: auto;
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 12px;
+  }
+
+  .dashboard-page .sidebar .logout {
+    margin-top: 14px;
+  }
+
+  .dashboard-page .dashboard-main {
+    padding: 24px 14px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 19px;
+  }
+
+  .form-group.full {
+    grid-column: auto;
+  }
+
+  .application-form {
+    padding: 21px 17px;
+    border-radius: 15px;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+
+  .page-title h1 {
+    font-size: 27px;
+  }
+}
+
+/* Respect reduced-motion accessibility settings */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

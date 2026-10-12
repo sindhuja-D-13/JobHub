@@ -1,0 +1,145 @@
+
+.login-page {
+  display: grid;
+  grid-template-columns: 1fr 0.9fr;
+  min-height: 100vh;
+  background: #fff;
+  color: #202946;
+  font-family: Arial, sans-serif;
+}
+
+.login-hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 50px;
+  background: linear-gradient(135deg, #19234f, #6257d9);
+  color: white;
+}
+
+.login-hero h1 {
+  font-size: 48px;
+  line-height: 1.15;
+}
+
+.login-hero p {
+  max-width: 420px;
+  line-height: 1.8;
+}
+
+.login-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 35px;
+}
+
+.login-panel-inner {
+  width: 100%;
+  max-width: 410px;
+}
+
+.login-form-heading h2 {
+  font-size: 34px;
+}
+
+.login-form-heading p {
+  color: #7d879b;
+}
+
+.jobhub-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.jobhub-login-form input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px;
+  border: 1px solid #dfe3ed;
+  border-radius: 8px;
+}
+
+.login-password-heading {
+  display: flex;
+  justify-content: space-between;
+}
+
+.login-submit {
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: #6257d9;
+  color: white;
+  font-weight: bold;
+}
+
+.login-demo-accounts {
+  display: grid;
+  gap: 10px;
+}
+
+.login-demo-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e2e5ef;
+  border-radius: 8px;
+  background: white;
+}
+
+.demo-account-text {
+  display: grid;
+  gap: 5px;
+}
+
+.login-error {
+  color: #c62828;
+}
+
+.login-divider {
+  margin: 25px 0;
+  text-align: center;
+}
+
+.login-mobile-brand {
+  display: none;
+}
+
+.login-panel-footer {
+  padding-top: 25px;
+  color: #9299aa;
+  text-align: center;
+  font-size: 12px;
+}
+
+@media (max-width: 650px) {
+  .login-page {
+    display: block;
+  }
+
+  .login-hero {
+    display: none;
+  }
+
+  .login-panel {
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding: 25px 18px;
+    background: #f6f7fb;
+  }
+
+  .login-panel-inner {
+    padding: 25px 18px;
+    border-radius: 14px;
+    background: white;
+  }
+
+  .login-mobile-brand {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+  }
+}

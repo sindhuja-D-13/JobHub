@@ -1,0 +1,219 @@
+.company-jobs-page {
+  min-height: 100vh;
+  background: var(--ui-background, #f5f7fb);
+  color: var(--ui-text, #17243a);
+  font-family: "DM Sans", Arial, sans-serif;
+}
+
+.company-jobs-main {
+  width: min(100% - 48px, 1240px);
+  margin: 0 auto;
+  padding: 42px 0 60px;
+}
+
+.company-jobs-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.company-jobs-heading .eyebrow {
+  margin: 0 0 10px;
+  color: var(--ui-primary, #2459c7);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+.company-jobs-heading h1 {
+  margin: 0 0 8px;
+  font-size: clamp(28px, 4vw, 36px);
+  letter-spacing: -0.8px;
+}
+
+.company-jobs-heading p:last-child {
+  margin: 0;
+  color: var(--ui-muted, #64748b);
+}
+
+.company-jobs-heading .primary-button,
+.company-jobs-empty .primary-button {
+  flex-shrink: 0;
+}
+
+.company-jobs-panel {
+  padding: 24px;
+  border: 1px solid var(--ui-border, #e2e8f0);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--ui-shadow, 0 5px 18px rgba(23, 36, 58, 0.045));
+}
+
+.company-jobs-panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.company-jobs-panel-heading h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.company-jobs-panel-heading p {
+  margin: 0;
+  color: var(--ui-muted, #64748b);
+  font-size: 13px;
+}
+
+.company-jobs-refresh,
+.company-jobs-error button {
+  padding: 9px 13px;
+  border: 1px solid var(--ui-border, #e2e8f0);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ui-primary, #2459c7);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.company-jobs-refresh:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.company-jobs-table-wrap {
+  overflow-x: auto;
+}
+
+.company-jobs-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.company-jobs-table th {
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--ui-border, #e2e8f0);
+  background: #f8fafc;
+  color: var(--ui-muted, #64748b);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.company-jobs-table td {
+  padding: 15px 14px;
+  border-bottom: 1px solid #edf1f6;
+  color: #475569;
+  font-size: 13px;
+}
+
+.company-jobs-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.company-jobs-table td strong,
+.company-jobs-table td small {
+  display: block;
+}
+
+.company-jobs-table td strong {
+  color: var(--ui-text, #17243a);
+}
+
+.company-jobs-table td small {
+  margin-top: 4px;
+  color: var(--ui-muted, #64748b);
+}
+
+.company-job-status {
+  display: inline-flex;
+  padding: 6px 9px;
+  border-radius: 20px;
+  background: #fff4dc;
+  color: #986400;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.company-job-status.approved {
+  background: #e8f6ed;
+  color: #187647;
+}
+
+.company-job-status.rejected {
+  background: #fff0f1;
+  color: #b42338;
+}
+
+.company-jobs-state {
+  padding: 24px 0;
+  color: var(--ui-muted, #64748b);
+}
+
+.company-jobs-empty {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 38px 20px;
+  border: 1px dashed var(--ui-border, #e2e8f0);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.company-jobs-empty h2,
+.company-jobs-empty p {
+  margin: 0;
+}
+
+.company-jobs-empty h2 {
+  font-size: 17px;
+}
+
+.company-jobs-empty p {
+  margin-bottom: 5px;
+  color: var(--ui-muted, #64748b);
+  font-size: 13px;
+}
+
+.company-jobs-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px;
+  border: 1px solid #f4cbd0;
+  border-radius: 9px;
+  background: #fff6f6;
+  color: #9f2738;
+}
+
+.company-jobs-error p {
+  margin: 0;
+  font-size: 13px;
+}
+
+@media (max-width: 760px) {
+  .company-jobs-main {
+    width: min(100% - 32px, 1240px);
+    padding-top: 28px;
+  }
+
+  .company-jobs-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .company-jobs-panel {
+    padding: 18px 14px;
+  }
+}

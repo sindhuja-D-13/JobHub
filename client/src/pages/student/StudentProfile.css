@@ -1,0 +1,346 @@
+
+.profile-page {
+    min-height: 100vh;
+    background: #f4f7ff;
+    color: #111d3b;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 7%;
+    background: #fff;
+    border-bottom: 1px solid #e4eaff;
+}
+
+.profile-logo {
+    color: #111d3b;
+    font-size: 30px;
+    font-weight: 850;
+    letter-spacing: -1px;
+    text-decoration: none;
+}
+
+.profile-logo span {
+    color: #2864f0;
+}
+
+.profile-back {
+    padding: 11px 16px;
+    border-radius: 12px;
+    background: #edf3ff;
+    color: #2864f0;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.profile-back:hover {
+    background: #dfe9ff;
+}
+
+.profile-container {
+    width: min(680px, calc(100% - 32px));
+    margin: 45px auto;
+}
+
+.profile-banner {
+    position: relative;
+    padding: 38px 20px 32px;
+    overflow: hidden;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #2864f0, #704ee8);
+    color: #fff;
+    text-align: center;
+    box-shadow: 0 16px 35px rgba(40, 100, 240, 0.16);
+    animation: profileFadeUp 0.55s ease both;
+}
+
+.profile-banner-decoration {
+    position: absolute;
+    top: -75px;
+    right: -40px;
+    width: 200px;
+    height: 200px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 25px rgba(255, 255, 255, 0.04),
+        0 0 0 50px rgba(255, 255, 255, 0.03);
+    pointer-events: none;
+}
+
+.profile-avatar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 18px;
+    border: 4px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    font-size: 42px;
+    font-weight: 800;
+    animation: profileFloat 4s ease-in-out infinite;
+}
+
+.profile-banner h1 {
+    position: relative;
+    margin: 0 0 8px;
+    overflow-wrap: anywhere;
+    font-size: clamp(24px, 5vw, 32px);
+}
+
+.profile-banner p {
+    position: relative;
+    margin: 0 0 18px;
+    overflow-wrap: anywhere;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 14px;
+}
+
+.profile-role {
+    position: relative;
+    display: inline-block;
+    padding: 8px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.16);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.profile-details {
+    margin-top: 22px;
+    padding: 28px;
+    border: 1px solid #e4eaff;
+    border-radius: 24px;
+    background: #fff;
+    box-shadow: 0 12px 35px rgba(45, 80, 160, 0.06);
+    animation: profileFadeUp 0.7s ease both;
+}
+
+.profile-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.profile-section-heading h2 {
+    margin: 0 0 7px;
+    font-size: 20px;
+}
+
+.profile-section-heading p {
+    margin: 0;
+    color: #7182a6;
+    font-size: 13px;
+}
+
+.profile-heading-icon {
+    font-size: 28px;
+}
+
+.profile-info-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px 0;
+    border-bottom: 1px solid #edf1fa;
+}
+
+.profile-info-icon {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: #edf3ff;
+    font-size: 21px;
+}
+
+.profile-info-row > div:last-child {
+    min-width: 0;
+}
+
+.profile-info-row .profile-edit-name {
+    margin-left: auto;
+    padding: 9px 12px;
+    border: 1px solid #dce6ff;
+    border-radius: 10px;
+    background: #f5f8ff;
+    color: #2864f0;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.profile-name-form {
+    padding: 16px 0 20px;
+    border-bottom: 1px solid #edf1fa;
+}
+
+.profile-name-form label {
+    display: block;
+    margin-bottom: 8px;
+    color: #7182a6;
+    font-size: 12px;
+}
+
+.profile-name-form input {
+    width: 100%;
+    min-height: 46px;
+    padding: 11px 13px;
+    border: 1px solid #cfdef0;
+    border-radius: 10px;
+    color: #17345c;
+    font: inherit;
+}
+
+.profile-name-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.profile-name-actions button {
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 10px;
+    background: #2864f0;
+    color: #fff;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.profile-name-actions button:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+.profile-name-actions .profile-cancel {
+    border: 1px solid #dce6ff;
+    background: #fff;
+    color: #52627d;
+}
+
+.profile-message {
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.profile-message.success {
+    background: #eaf8f0;
+    color: #187647;
+}
+
+.profile-message.error {
+    background: #fff0f1;
+    color: #b42338;
+}
+
+.profile-info-row span,
+.profile-info-row strong {
+    display: block;
+    overflow-wrap: anywhere;
+}
+
+.profile-info-row span {
+    margin-bottom: 6px;
+    color: #7182a6;
+    font-size: 12px;
+}
+
+.profile-info-row strong {
+    font-size: 14px;
+}
+
+.profile-signout {
+    width: 100%;
+    margin-top: 25px;
+    padding: 14px;
+    border: 1px solid #ffe0e5;
+    border-radius: 13px;
+    background: #fff3f4;
+    color: #d13b51;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 750;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.profile-signout:hover {
+    transform: translateY(-2px);
+    background: #ffe5e9;
+}
+
+.profile-loading {
+    padding: 60px 20px;
+    color: #7182a6;
+    text-align: center;
+}
+
+@keyframes profileFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+@keyframes profileFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 500px) {
+    .profile-header {
+        padding: 18px 16px;
+    }
+
+    .profile-logo {
+        font-size: 25px;
+    }
+
+    .profile-container {
+        margin: 25px auto;
+    }
+
+    .profile-details {
+        padding: 22px 17px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .profile-banner,
+    .profile-details,
+    .profile-avatar {
+        animation: none;
+    }
+}
