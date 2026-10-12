@@ -1,6 +1,9 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Auth.css";
+
+const API = "https://jobhub-4u5b.onrender.com";
 
 export default function Signup() {
     const navigate = useNavigate();
@@ -23,6 +26,8 @@ export default function Signup() {
             ...previous,
             [name]: value
         }));
+
+        setMessage("");
     }
 
     async function handleSubmit(e) {
@@ -32,7 +37,7 @@ export default function Signup() {
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/auth/signup",
+                `${API}/api/auth/signup`,
                 {
                     method: "POST",
                     headers: {
@@ -44,17 +49,18 @@ export default function Signup() {
                         password: form.password,
                         role: form.role,
                         ...(form.role === "Admin"
-                            ? { adminCode: form.adminCode }
+                            ? { adminCode: form.adminCode.trim() }
                             : {})
                     })
                 }
             );
 
-            const data = await response.json();
+            const data = await response.json().catch(() => ({}));
 
             if (!response.ok) {
                 throw new Error(
-                    data.message || "Registration failed."
+                    data.message ||
+                    `Registration failed (${response.status}).`
                 );
             }
 
@@ -62,7 +68,7 @@ export default function Signup() {
                 state: {
                     message:
                         data.message ||
-                        "Account created successfully."
+                        "Account created successfully. Please sign in."
                 }
             });
         } catch (error) {
@@ -70,12 +76,10 @@ export default function Signup() {
 
             if (error instanceof TypeError) {
                 setMessage(
-                    "Cannot connect to the server. Check that your backend is running on port 5000."
+                    "Unable to connect to JobHub. Please check your internet connection or try again later."
                 );
             } else {
-                setMessage(
-                    error.message || "Unable to register."
-                );
+                setMessage(error.message || "Unable to register.");
             }
         } finally {
             setLoading(false);
@@ -92,19 +96,13 @@ export default function Signup() {
                 </p>
 
                 {message && (
-                    <div
-                        className="auth-message"
-                        role="alert"
-                    >
+                    <div className="auth-message" role="alert">
                         {message}
                     </div>
                 )}
 
                 <form onSubmit={handleSubmit}>
-                    <label htmlFor="name">
-                        Full name
-                    </label>
-
+                    <label htmlFor="name">Full name</label>
                     <input
                         id="name"
                         name="name"
@@ -115,10 +113,7 @@ export default function Signup() {
                         required
                     />
 
-                    <label htmlFor="email">
-                        Email address
-                    </label>
-
+                    <label htmlFor="email">Email address</label>
                     <input
                         id="email"
                         type="email"
@@ -130,10 +125,7 @@ export default function Signup() {
                         required
                     />
 
-                    <label htmlFor="password">
-                        Password
-                    </label>
-
+                    <label htmlFor="password">Password</label>
                     <input
                         id="password"
                         type="password"
@@ -146,28 +138,24 @@ export default function Signup() {
                         required
                     />
 
-                    <label htmlFor="role">
-                        Register as
-                    </label>
-
+                    <label htmlFor="role">Register as</label>
                     <select
-    id="role"
-    name="role"
-    value={form.role}
-    onChange={handleChange}
-    required
->
-    <option value="Student">Student</option>
-    <option value="Company">Company</option>
-    <option value="Admin">Admin</option>
-</select>
+                        id="role"
+                        name="role"
+                        value={form.role}
+                        onChange={handleChange}
+                        required
+                    >
+                        <option value="Student">Student</option>
+                        <option value="Company">Company</option>
+                        <option value="Admin">Admin</option>
+                    </select>
 
                     {form.role === "Admin" && (
                         <>
                             <label htmlFor="adminCode">
                                 Admin registration code
                             </label>
-
                             <input
                                 id="adminCode"
                                 type="password"
@@ -181,10 +169,7 @@ export default function Signup() {
                         </>
                     )}
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                    >
+                    <button type="submit" disabled={loading}>
                         {loading
                             ? "Creating account..."
                             : "Create Account →"}

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Auth.css";
 
-// Deployed JobHub backend URL
+// Deployed JobHub backend on Render
 const API = "https://jobhub-4u5b.onrender.com";
 
 export default function Login() {
@@ -47,7 +47,8 @@ export default function Login() {
 
             if (!response.ok) {
                 throw new Error(
-                    data.message || `Login failed (${response.status}).`
+                    data.message ||
+                    `Login failed. Server returned ${response.status}.`
                 );
             }
 
@@ -62,7 +63,7 @@ export default function Login() {
             const routes = {
                 student: "/student/dashboard",
                 company: "/company/dashboard",
-                admin: "/admin"
+                admin: "/admin/dashboard"
             };
 
             const dashboard = routes[role];
@@ -73,15 +74,15 @@ export default function Login() {
                 );
             }
 
-            // Save the login session
+            // Save the authenticated user and token
             localStorage.setItem("token", data.token);
             localStorage.setItem("user", JSON.stringify(data.user));
 
-            // Remove older sessionStorage copies
+            // Clear any old session-based credentials
             sessionStorage.removeItem("token");
             sessionStorage.removeItem("user");
 
-            // Open the correct dashboard
+            // Navigate to the correct dashboard
             navigate(dashboard, { replace: true });
 
         } catch (error) {
@@ -92,7 +93,7 @@ export default function Login() {
                 error.message === "Failed to fetch"
             ) {
                 setMessage(
-                    "Cannot connect to JobHub. Please check your internet connection or try again shortly."
+                    "Cannot connect to JobHub. Please check your internet connection and try again."
                 );
             } else {
                 setMessage(
@@ -154,6 +155,11 @@ export default function Login() {
                             className="show-password"
                             onClick={() =>
                                 setShowPassword((previous) => !previous)
+                            }
+                            aria-label={
+                                showPassword
+                                    ? "Hide password"
+                                    : "Show password"
                             }
                         >
                             {showPassword ? "Hide" : "Show"}
