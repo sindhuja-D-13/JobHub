@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -8,6 +9,7 @@ const API = (
 function ApplyJob() {
     const navigate = useNavigate();
     const { jobId } = useParams();
+
     const [job, setJob] = useState(null);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -30,19 +32,35 @@ function ApplyJob() {
                 const storedUser = JSON.parse(
                     localStorage.getItem("user") || "null"
                 );
+
                 const response = await fetch(`${API}/api/jobs`, {
+                    method: "GET",
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 });
+
+                const contentType =
+                    response.headers.get("content-type") || "";
+
+                if (!contentType.includes("application/json")) {
+                    throw new Error(
+                        "The server returned an unexpected response. Please check the backend URL and deployment."
+                    );
+                }
+
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.message || "Unable to load the job.");
+                    throw new Error(
+                        data.message || "Unable to load the job."
+                    );
                 }
 
                 if (!Array.isArray(data)) {
-                    throw new Error("The server returned an unexpected jobs response.");
+                    throw new Error(
+                        "The server returned an unexpected jobs response."
+                    );
                 }
 
                 const selectedJob = data.find(
@@ -50,7 +68,9 @@ function ApplyJob() {
                 );
 
                 if (!selectedJob) {
-                    throw new Error("This job is unavailable or not approved.");
+                    throw new Error(
+                        "This job is unavailable or not approved."
+                    );
                 }
 
                 if (!cancelled) {
@@ -60,7 +80,9 @@ function ApplyJob() {
             } catch (loadError) {
                 if (!cancelled) {
                     console.error("Apply page loading error:", loadError);
-                    setError(loadError.message || "Unable to load this job.");
+                    setError(
+                        loadError.message || "Unable to load this job."
+                    );
                 }
             } finally {
                 if (!cancelled) {
@@ -81,38 +103,86 @@ function ApplyJob() {
         setError("");
 
         const token = localStorage.getItem("token");
+
         if (!token) {
             setError("Your session has expired. Please sign in again.");
+            return;
+        }
+
+        if (!jobId) {
+            setError("Invalid job ID. Please return to the jobs page.");
             return;
         }
 
         setSubmitting(true);
 
         try {
+            // This matches the application route in server.js.
             const response = await fetch(
-                `${API}/api/student/applications/${jobId}`,
+                `${API}/api/jobs/${encodeURIComponent(jobId)}/apply`,
                 {
                     method: "POST",
                     headers: {
                         Authorization: `Bearer ${token}`,
                         "Content-Type": "application/json"
-                    }
+                    },
+                    body: JSON.stringify({})
                 }
             );
-            const data = await response.json();
+
+            const contentType =
+                response.headers.get("content-type") || "";
+
+            let data = {};
+
+            if (contentType.includes("application/json")) {
+                data = await response.json();
+            } else {
+                const responseText = await response.text();
+
+                console.error(
+                    "Unexpected application response:",
+                    response.status,
+                    responseText.slice(0, 300)
+                );
+
+                throw new Error(
+                    `The server returned a non-JSON response (HTTP ${response.status}). Please check the backend deployment and API URL.`
+                );
+            }
 
             if (!response.ok) {
-                throw new Error(data.message || "Unable to submit your application.");
+                if (response.status === 401) {
+                    throw new Error(
+                        "Your session has expired. Please sign in again."
+                    );
+                }
+
+                if (response.status === 403) {
+                    throw new Error(
+                        data.message ||
+                        "You are not authorized to apply for this job."
+                    );
+                }
+
+                throw new Error(
+                    data.message || "Unable to submit your application."
+                );
             }
 
             navigate("/student/applications", {
                 replace: true,
-                state: { message: data.message }
+                state: {
+                    message:
+                        data.message || "Application submitted successfully."
+                }
             });
         } catch (submitError) {
             console.error("Application submission error:", submitError);
+
             setError(
-                submitError.message || "Unable to submit your application."
+                submitError.message ||
+                "Unable to submit your application. Please try again."
             );
         } finally {
             setSubmitting(false);
@@ -137,24 +207,45 @@ function ApplyJob() {
                 </div>
 
                 <nav>
-                    <button onClick={() => navigate("/student/dashboard")}>
+                    <button
+                        type="button"
+                        onClick={() => navigate("/student/dashboard")}
+                    >
                         🏠 Dashboard
                     </button>
-                    <button onClick={() => navigate("/student/jobs")}>
+
+                    <button
+                        type="button"
+                        onClick={() => navigate("/student/jobs")}
+                    >
                         💼 Browse Jobs
                     </button>
+
                     <button
+                        type="button"
                         className="active"
-                        onClick={() => navigate(`/student/jobs/${jobId}`)}
+                        onClick={() =>
+                            navigate(`/student/jobs/${jobId}`)
+                        }
                     >
                         📄 Apply
                     </button>
-                    <button onClick={() => navigate("/student/applications")}>
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            navigate("/student/applications")
+                        }
+                    >
                         📋 My Applications
                     </button>
                 </nav>
 
-                <button className="logout" onClick={signOut}>
+                <button
+                    type="button"
+                    className="logout"
+                    onClick={signOut}
+                >
                     ↪ Sign out
                 </button>
             </aside>
@@ -163,6 +254,7 @@ function ApplyJob() {
                 <div className="form-container">
                     <div className="page-title">
                         <h1>Apply for {job?.title || "Job"}</h1>
+
                         <p>
                             {job?.company_name || "Company"}
                             {job?.location ? ` · ${job.location}` : ""}
@@ -170,7 +262,10 @@ function ApplyJob() {
                     </div>
 
                     {error && (
-                        <div className="job-submit-message error" role="alert">
+                        <div
+                            className="job-submit-message error"
+                            role="alert"
+                        >
                             {error}
                         </div>
                     )}
@@ -181,14 +276,20 @@ function ApplyJob() {
                             onSubmit={handleSubmit}
                         >
                             <h2>Applicant Information</h2>
+
                             <p>
-                                Your application will be submitted using your
-                                signed-in JobHub account.
+                                Your application will be submitted using
+                                your signed-in JobHub account.
                             </p>
+
                             <div className="form-grid">
                                 <div className="form-group">
-                                    <label>Full Name</label>
+                                    <label htmlFor="applicant-name">
+                                        Full Name
+                                    </label>
+
                                     <input
+                                        id="applicant-name"
                                         value={
                                             user?.name ||
                                             user?.full_name ||
@@ -197,16 +298,32 @@ function ApplyJob() {
                                         readOnly
                                     />
                                 </div>
+
                                 <div className="form-group">
-                                    <label>Email Address</label>
+                                    <label htmlFor="applicant-email">
+                                        Email Address
+                                    </label>
+
                                     <input
-                                        value={user?.email || "Email unavailable"}
+                                        id="applicant-email"
+                                        value={
+                                            user?.email ||
+                                            "Email unavailable"
+                                        }
                                         readOnly
                                     />
                                 </div>
+
                                 <div className="form-group full">
-                                    <label>Position</label>
-                                    <input value={job.title} readOnly />
+                                    <label htmlFor="application-position">
+                                        Position
+                                    </label>
+
+                                    <input
+                                        id="application-position"
+                                        value={job.title}
+                                        readOnly
+                                    />
                                 </div>
                             </div>
 
@@ -214,10 +331,14 @@ function ApplyJob() {
                                 <button
                                     type="button"
                                     className="secondary-btn"
-                                    onClick={() => navigate(`/student/jobs/${jobId}`)}
+                                    onClick={() =>
+                                        navigate(`/student/jobs/${jobId}`)
+                                    }
+                                    disabled={submitting}
                                 >
                                     Cancel
                                 </button>
+
                                 <button
                                     type="submit"
                                     className="primary-btn"
