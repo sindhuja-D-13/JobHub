@@ -619,6 +619,7 @@ app.patch(
 );
 
 // ADMIN: View shortlisted applicants awaiting approval
+
 app.get(
     "/api/admin/shortlist-approvals",
     authenticateToken,
@@ -627,6 +628,7 @@ app.get(
         try {
             const [applications] = await db.execute(
                 `SELECT
+                    a.id AS id,
                     a.id AS application_id,
                     a.status,
                     a.admin_approval,
@@ -644,16 +646,20 @@ app.get(
                  ORDER BY a.applied_at ASC`
             );
 
-            res.json(applications);
+            return res.status(200).json(applications);
         } catch (error) {
-            console.error("Shortlist approvals error:", error.message);
+            console.error(
+                "Shortlist approvals error:",
+                error.message
+            );
 
-            res.status(500).json({
+            return res.status(500).json({
                 message: "Unable to load shortlist approvals."
             });
         }
     }
 );
+
 
 // ADMIN: Approve or reject shortlisted applicants
 
