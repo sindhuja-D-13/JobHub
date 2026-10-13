@@ -656,6 +656,7 @@ app.get(
 );
 
 // ADMIN: Approve or reject shortlisted applicants
+
 app.patch(
     "/api/admin/applications/:id/approval",
     authenticateToken,
@@ -663,23 +664,30 @@ app.patch(
     async (req, res) => {
         try {
             const applicationId = Number(req.params.id);
-            const { approval } = req.body;
+            const approval = String(req.body?.approval || "")
+                .trim()
+                .toLowerCase();
 
-            if (!Number.isInteger(applicationId) || applicationId <= 0) {
+            // Validate application ID
+            if (
+                !Number.isSafeInteger(applicationId) ||
+                applicationId <= 0
+            ) {
                 return res.status(400).json({
                     message: "Invalid application ID."
                 });
             }
 
+            // Validate admin decision
             if (!["approved", "rejected"].includes(approval)) {
                 return res.status(400).json({
                     message: "Approval must be approved or rejected."
                 });
             }
 
-            const newStatus = approval === "approved"
-                ? "selected"
-                : "rejected";
+            // Update application status based on admin decision
+            const newStatus =
+                approval === "approved" ? "selected" : "rejected";
 
             const [result] = await db.execute(
                 `UPDATE applications
@@ -692,24 +700,34 @@ app.patch(
 
             if (result.affectedRows === 0) {
                 return res.status(404).json({
-                    message: "Pending shortlist approval not found."
+                    message:
+                        "Pending shortlist approval not found. It may already have been processed."
                 });
             }
 
-            res.json({
-                message: approval === "approved"
-                    ? "Student selected successfully."
-                    : "Shortlist rejected successfully."
+            return res.status(200).json({
+                success: true,
+                application_id: applicationId,
+                status: newStatus,
+                admin_approval: approval,
+                message:
+                    approval === "approved"
+                        ? "Student selected successfully."
+                        : "Shortlist rejected successfully."
             });
         } catch (error) {
-            console.error("Shortlist decision error:", error.message);
+            console.error(
+                "Shortlist decision error:",
+                error.message
+            );
 
-            res.status(500).json({
+            return res.status(500).json({
                 message: "Unable to process shortlist approval."
             });
         }
     }
 );
+
 
 // STUDENT: Dashboard counts
 app.get(
