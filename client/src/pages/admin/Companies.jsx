@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 import "./AdminDashboard.css";
 
 const API = (
-    import.meta.env.VITE_API_URL ||
-    "http://localhost:5000"
+    import.meta.env.VITE_API_URL || "http://localhost:5000"
 ).replace(/\/+$/, "");
 
 export default function Companies() {
@@ -196,7 +195,8 @@ export default function Companies() {
                                                         🏢
                                                     </span>
                                                     <strong>
-                                                        {company.full_name || "Unnamed company"}
+                                                        {company.full_name ||
+                                                            "Unnamed company"}
                                                     </strong>
                                                 </div>
                                             </td>
