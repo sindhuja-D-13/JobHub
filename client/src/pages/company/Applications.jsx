@@ -46,16 +46,13 @@ function Applications() {
         throw new Error("Please sign in to view applications.");
       }
 
-      const response = await fetch(
-        `${API}/api/company/applications`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${API}/api/company/applications`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
 
       const data = await parseResponse(response);
 
@@ -70,9 +67,7 @@ function Applications() {
           );
         }
 
-        throw new Error(
-          data?.message || "Unable to load applications."
-        );
+        throw new Error(data?.message || "Unable to load applications.");
       }
 
       if (!Array.isArray(data)) {
@@ -93,6 +88,15 @@ function Applications() {
   }, [loadApplications]);
 
   async function shortlistCandidate(applicationId) {
+    if (
+      applicationId == null ||
+      !Number.isInteger(Number(applicationId)) ||
+      Number(applicationId) <= 0
+    ) {
+      setError("Invalid application ID. Please refresh the applications.");
+      return;
+    }
+
     setUpdatingId(applicationId);
     setError("");
     setMessage("");
@@ -140,8 +144,7 @@ function Applications() {
       }
 
       setMessage(
-        data.message ||
-          "Candidate shortlisted successfully. Refreshing applications..."
+        data?.message || "Candidate shortlisted successfully."
       );
 
       await loadApplications();
@@ -239,19 +242,24 @@ function Applications() {
         ) : (
           <div className="application-review-list">
             {applications.map((application) => {
+              const applicationId = application.application_id;
+
               const status = String(
                 application.status || "applied"
               ).toLowerCase();
 
+              const adminApproval = String(
+                application.admin_approval || ""
+              ).toLowerCase();
+
               const isPendingApproval =
                 status === "shortlisted" &&
-                String(application.admin_approval || "").toLowerCase() ===
-                  "pending";
+                adminApproval === "pending";
 
               return (
                 <article
                   className="candidate-card"
-                  key={application.id}
+                  key={applicationId}
                 >
                   <div className="candidate-avatar">
                     {(application.student_name || "S")
@@ -260,11 +268,11 @@ function Applications() {
                   </div>
 
                   <div className="candidate-details">
-                    <h2>
-                      {application.student_name || "Student"}
-                    </h2>
+                    <h2>{application.student_name || "Student"}</h2>
 
-                    <p>{application.student_email || "Email unavailable"}</p>
+                    <p>
+                      {application.student_email || "Email unavailable"}
+                    </p>
 
                     <p>
                       Applied for:{" "}
@@ -292,10 +300,10 @@ function Applications() {
                         className="company-shortlist-btn"
                         disabled={updatingId !== null}
                         onClick={() =>
-                          shortlistCandidate(application.id)
+                          shortlistCandidate(applicationId)
                         }
                       >
-                        {updatingId === application.id
+                        {updatingId === applicationId
                           ? "Submitting..."
                           : "Shortlist"}
                       </button>
@@ -306,12 +314,12 @@ function Applications() {
                     )}
 
                     {status === "shortlisted" &&
-                      application.admin_approval === "approved" && (
+                      adminApproval === "approved" && (
                         <small>Approved by admin</small>
                       )}
 
                     {status === "shortlisted" &&
-                      application.admin_approval === "rejected" && (
+                      adminApproval === "rejected" && (
                         <small>Rejected by admin</small>
                       )}
                   </div>
