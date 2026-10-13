@@ -1,4 +1,3 @@
-
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
@@ -85,11 +84,11 @@ app.get("/api/health", async (req, res) => {
 });
 
 // SIGNUP
-// Public signup is restricted to Student and Company.
-// Admin accounts should be created securely by an administrator.
+// Student and Company registration are public.
+// Admin registration requires a secret stored on the server.
 app.post("/api/auth/signup", async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role, adminCode } = req.body;
 
         if (!name || !email || !password || !role) {
             return res.status(400).json({
@@ -101,13 +100,35 @@ app.post("/api/auth/signup", async (req, res) => {
         const normalizedEmail = email.trim().toLowerCase();
         const normalizedRole = String(role).trim().toLowerCase();
 
-        if (!["student", "company"].includes(normalizedRole)) {
+        if (!["student", "company", "admin"].includes(normalizedRole)) {
             return res.status(400).json({
-                message: "Choose Student or Company."
+                message: "Please choose a valid account type."
             });
         }
 
-        if (password.length < 8) {
+        // Verify the Admin registration code.
+        if (normalizedRole === "admin") {
+            const expectedAdminCode =
+                process.env.ADMIN_REGISTRATION_CODE;
+
+            if (!expectedAdminCode) {
+                return res.status(500).json({
+                    message:
+                        "Admin registration is not configured on the server."
+                });
+            }
+
+            if (
+                typeof adminCode !== "string" ||
+                adminCode.trim() !== expectedAdminCode
+            ) {
+                return res.status(403).json({
+                    message: "Invalid admin registration code."
+                });
+            }
+        }
+
+        if (typeof password !== "string" || password.length < 8) {
             return res.status(400).json({
                 message: "Password must contain at least 8 characters."
             });
@@ -138,7 +159,7 @@ app.post("/api/auth/signup", async (req, res) => {
             ]
         );
 
-        res.status(201).json({
+        return res.status(201).json({
             message: "Account created successfully. Please sign in.",
             userId: result.insertId
         });
@@ -151,7 +172,7 @@ app.post("/api/auth/signup", async (req, res) => {
             });
         }
 
-        res.status(500).json({
+        return res.status(500).json({
             message: "Unable to create account."
         });
     }
@@ -208,7 +229,7 @@ app.post("/api/auth/login", async (req, res) => {
             { expiresIn: "2h" }
         );
 
-        res.json({
+        return res.json({
             message: "Login successful.",
             token,
             user: {
@@ -221,7 +242,7 @@ app.post("/api/auth/login", async (req, res) => {
     } catch (error) {
         console.error("Login error:", error.message);
 
-        res.status(500).json({
+        return res.status(500).json({
             message: "Unable to log in."
         });
     }
@@ -251,11 +272,11 @@ app.get(
                  ORDER BY j.created_at DESC`
             );
 
-            res.json(jobs);
+            return res.json(jobs);
         } catch (error) {
             console.error("Load jobs error:", error.message);
 
-            res.status(500).json({
+            return res.status(500).json({
                 message: "Unable to load jobs."
             });
         }
@@ -300,14 +321,14 @@ app.post(
                 ]
             );
 
-            res.status(201).json({
+            return res.status(201).json({
                 message: "Job submitted for admin approval.",
                 jobId: result.insertId
             });
         } catch (error) {
             console.error("Post job error:", error.message);
 
-            res.status(500).json({
+            return res.status(500).json({
                 message: "Unable to post job."
             });
         }
@@ -329,11 +350,11 @@ app.get(
                 [req.user.id]
             );
 
-            res.json(jobs);
+            return res.json(jobs);
         } catch (error) {
             console.error("Company jobs error:", error.message);
 
-            res.status(500).json({
+            return res.status(500).json({
                 message: "Unable to load company jobs."
             });
         }
@@ -358,11 +379,11 @@ app.get(
                  ORDER BY j.created_at ASC`
             );
 
-            res.json(jobs);
+            return res.json(jobs);
         } catch (error) {
             console.error("Pending jobs error:", error.message);
 
-            res.status(500).json({
+            return res.status(500).json({
                 message: "Unable to load pending jobs."
             });
         }
@@ -404,13 +425,13 @@ app.patch(
                 });
             }
 
-            res.json({
+            return res.json({
                 message: `Job ${status} successfully.`
             });
         } catch (error) {
             console.error("Update job status error:", error.message);
 
-            res.status(500).json({
+            return res.status(500).json({
                 message: "Unable to update job status."
             });
         }
@@ -425,7 +446,7 @@ app.post(
     async (req, res) => {
         try {
             const jobId = Number(req.params.id);
-            const { resume_path, cover_letter } = req.body;
+            const { resume_path, cover_letter } = req.body || {};
 
             if (!Number.isInteger(jobId) || jobId <= 0) {
                 return res.status(400).json({
@@ -456,7 +477,7 @@ app.post(
                 ]
             );
 
-            res.status(201).json({
+            return res.status(201).json({
                 message: "Application submitted successfully.",
                 applicationId: result.insertId
             });
@@ -469,7 +490,7 @@ app.post(
 
             console.error("Apply job error:", error.message);
 
-            res.status(500).json({
+            return res.status(500).json({
                 message: "Unable to submit application."
             });
         }
@@ -500,11 +521,11 @@ app.get(
                 [req.user.id]
             );
 
-            res.json(applications);
+            return res.json(applications);
         } catch (error) {
             console.error("Student applications error:", error.message);
 
-            res.status(500).json({
+            return res.status(500).json({
                 message: "Unable to load applications."
             });
         }
@@ -538,11 +559,11 @@ app.get(
                 [req.user.id]
             );
 
-            res.json(applications);
+            return res.json(applications);
         } catch (error) {
             console.error("Company applications error:", error.message);
 
-            res.status(500).json({
+            return res.status(500).json({
                 message: "Unable to load applications."
             });
         }
@@ -588,13 +609,13 @@ app.patch(
                 });
             }
 
-            res.json({
+            return res.json({
                 message: `Applicant ${status} successfully.`
             });
         } catch (error) {
             console.error("Review application error:", error.message);
 
-            res.status(500).json({
+            return res.status(500).json({
                 message: "Unable to update application."
             });
         }
@@ -627,11 +648,11 @@ app.get(
                  ORDER BY a.applied_at ASC`
             );
 
-            res.json(applications);
+            return res.json(applications);
         } catch (error) {
             console.error("Shortlist approvals error:", error.message);
 
-            res.status(500).json({
+            return res.status(500).json({
                 message: "Unable to load shortlist approvals."
             });
         }
@@ -660,9 +681,8 @@ app.patch(
                 });
             }
 
-            const newStatus = approval === "approved"
-                ? "selected"
-                : "rejected";
+            const newStatus =
+                approval === "approved" ? "selected" : "rejected";
 
             const [result] = await db.execute(
                 `UPDATE applications
@@ -679,15 +699,16 @@ app.patch(
                 });
             }
 
-            res.json({
-                message: approval === "approved"
-                    ? "Student selected successfully."
-                    : "Shortlist rejected successfully."
+            return res.json({
+                message:
+                    approval === "approved"
+                        ? "Student selected successfully."
+                        : "Shortlist rejected successfully."
             });
         } catch (error) {
             console.error("Shortlist decision error:", error.message);
 
-            res.status(500).json({
+            return res.status(500).json({
                 message: "Unable to process shortlist approval."
             });
         }
@@ -720,7 +741,7 @@ app.get(
                 [req.user.id]
             );
 
-            res.json({
+            return res.json({
                 availableJobs: jobs[0].total,
                 applications: applications[0].total,
                 shortlisted: shortlisted[0].total,
@@ -729,7 +750,7 @@ app.get(
         } catch (error) {
             console.error("Student dashboard error:", error.message);
 
-            res.status(500).json({
+            return res.status(500).json({
                 message: "Unable to load dashboard."
             });
         }
