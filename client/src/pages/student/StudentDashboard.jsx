@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import "../../App.css";
 import "./StudentDashboard.css";
 
+const API = (
+  import.meta.env.VITE_API_URL || "http://localhost:5000"
+).replace(/\/+$/, "");
+
 function StudentDashboard() {
   const navigate = useNavigate();
 
@@ -58,14 +62,11 @@ function StudentDashboard() {
       }
 
       try {
-        const response = await fetch(
-          "http://localhost:5000/api/student/dashboard",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await fetch(`${API}/api/student/dashboard`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         const data = await response.json();
 
@@ -159,7 +160,6 @@ function StudentDashboard() {
             >
               <span className="nav-icon">{item.icon}</span>
               <span>{item.name}</span>
-
             </button>
           ))}
         </nav>
@@ -202,9 +202,7 @@ function StudentDashboard() {
           {/* Welcome section */}
           <section className="student-welcome">
             <div>
-              <div className="welcome-date">
-                YOUR CAREER WORKSPACE
-              </div>
+              <div className="welcome-date">YOUR CAREER WORKSPACE</div>
 
               <h1>
                 Welcome back, {studentName}! <span>👋</span>
@@ -222,9 +220,7 @@ function StudentDashboard() {
           <section className="student-stats">
             {stats.map((stat) => (
               <article className="stat-card" key={stat.label}>
-                <div className={`stat-icon ${stat.color}`}>
-                  {stat.icon}
-                </div>
+                <div className={`stat-icon ${stat.color}`}>{stat.icon}</div>
 
                 <div className="stat-label">{stat.label}</div>
 
@@ -240,9 +236,7 @@ function StudentDashboard() {
           {statsError && (
             <div className="dashboard-error" role="alert">
               <p>{statsError}</p>
-              <button
-                onClick={() => window.location.reload()}
-              >
+              <button onClick={() => window.location.reload()}>
                 Try again
               </button>
             </div>
@@ -250,9 +244,7 @@ function StudentDashboard() {
 
           <footer className="student-footer">
             <span>© 2026 JobHub</span>
-            <span>
-              Build your future, one application at a time.
-            </span>
+            <span>Build your future, one application at a time.</span>
           </footer>
         </div>
       </main>

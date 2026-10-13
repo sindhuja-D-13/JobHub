@@ -1,7 +1,10 @@
-
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./MyApplications.css";
+
+const API = (
+  import.meta.env.VITE_API_URL || "http://localhost:5000"
+).replace(/\/+$/, "");
 
 function MyApplications() {
   const navigate = useNavigate();
@@ -23,7 +26,7 @@ function MyApplications() {
 
       try {
         const response = await fetch(
-          "http://localhost:5000/api/student/applications",
+          `${API}/api/student/applications`,
           {
             method: "GET",
             headers: {
@@ -208,7 +211,6 @@ function MyApplications() {
               )}
             </div>
 
-            {/* Loading state */}
             {loading ? (
               <div className="applications-empty">
                 <div className="applications-empty-icon">◷</div>
@@ -218,7 +220,6 @@ function MyApplications() {
                 </p>
               </div>
             ) : error ? (
-              /* Error state */
               <div
                 className="applications-empty"
                 role="alert"
@@ -236,7 +237,6 @@ function MyApplications() {
                 </button>
               </div>
             ) : applications.length === 0 ? (
-              /* Empty state without Browse Jobs button */
               <div className="applications-empty">
                 <div className="applications-empty-icon">▤</div>
                 <h3>No applications yet</h3>
@@ -245,7 +245,6 @@ function MyApplications() {
                 </p>
               </div>
             ) : (
-              /* Applications from the database */
               <div className="application-cards">
                 {applications.map((application) => {
                   const companyName =
@@ -295,7 +294,6 @@ function MyApplications() {
             )}
           </section>
 
-          {/* Footer */}
           <footer className="applications-footer">
             <span>© 2026 JobHub</span>
             <span>

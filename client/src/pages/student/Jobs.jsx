@@ -1,6 +1,9 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+const API = (
+  import.meta.env.VITE_API_URL || "http://localhost:5000"
+).replace(/\/+$/, "");
 
 function Jobs() {
   const navigate = useNavigate();
@@ -18,7 +21,7 @@ function Jobs() {
           throw new Error("Please sign in to view approved jobs.");
         }
 
-        const response = await fetch("http://localhost:5000/api/jobs", {
+        const response = await fetch(`${API}/api/jobs`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

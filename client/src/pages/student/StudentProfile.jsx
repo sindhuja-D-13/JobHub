@@ -1,9 +1,10 @@
-
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./StudentProfile.css";
 
-const API = "http://localhost:5000";
+const API = (
+    import.meta.env.VITE_API_URL || "http://localhost:5000"
+).replace(/\/+$/, "");
 
 export default function StudentProfile() {
     const navigate = useNavigate();
@@ -197,24 +198,24 @@ export default function StudentProfile() {
                             </div>
                         </form>
                     ) : (
-                    <div className="profile-info-row">
-                        <div className="profile-info-icon">👤</div>
-                        <div>
-                            <span>Full Name</span>
-                            <strong>{name}</strong>
+                        <div className="profile-info-row">
+                            <div className="profile-info-icon">👤</div>
+                            <div>
+                                <span>Full Name</span>
+                                <strong>{name}</strong>
+                            </div>
+                            <button
+                                type="button"
+                                className="profile-edit-name"
+                                onClick={() => {
+                                    setNameInput(name);
+                                    setEditingName(true);
+                                    setMessage("");
+                                }}
+                            >
+                                Change name
+                            </button>
                         </div>
-                        <button
-                            type="button"
-                            className="profile-edit-name"
-                            onClick={() => {
-                                setNameInput(name);
-                                setEditingName(true);
-                                setMessage("");
-                            }}
-                        >
-                            Change name
-                        </button>
-                    </div>
                     )}
 
                     <div className="profile-info-row">

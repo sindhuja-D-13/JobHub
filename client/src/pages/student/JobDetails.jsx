@@ -1,8 +1,11 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../../App.css";
 import "./JobDetails.css";
+
+const API = (
+  import.meta.env.VITE_API_URL || "http://localhost:5000"
+).replace(/\/+$/, "");
 
 function JobDetails() {
   const navigate = useNavigate();
@@ -26,7 +29,7 @@ function JobDetails() {
 
       try {
         // The backend returns only approved jobs.
-        const response = await fetch("http://localhost:5000/api/jobs", {
+        const response = await fetch(`${API}/api/jobs`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
