@@ -1,9 +1,11 @@
-
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./AdminDashboard.css";
 
-const API = "http://localhost:5000";
+const API = (
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:5000"
+).replace(/\/+$/, "");
 
 export default function Companies() {
     const [companies, setCompanies] = useState([]);
@@ -17,20 +19,48 @@ export default function Companies() {
 
         try {
             const token = localStorage.getItem("token");
-            if (!token) throw new Error("Please sign in first.");
 
-            const response = await fetch(`${API}/api/admin/companies`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.message || "Unable to load companies.");
+            if (!token) {
+                throw new Error("Please sign in first.");
             }
 
-            setCompanies(Array.isArray(data) ? data : []);
+            const response = await fetch(`${API}/api/admin/companies`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error(
+                        "Your session may have expired. Please sign in again."
+                    );
+                }
+
+                if (response.status === 403) {
+                    throw new Error(
+                        "You do not have permission to view companies."
+                    );
+                }
+
+                throw new Error(
+                    data.message || "Unable to load companies."
+                );
+            }
+
+            if (!Array.isArray(data)) {
+                throw new Error("Unexpected response from the server.");
+            }
+
+            setCompanies(data);
         } catch (err) {
-            setError(err.message || "Unable to load companies.");
+            console.error("Companies loading error:", err);
+            setError(
+                err.message || "Unable to load companies. Please try again."
+            );
         } finally {
             setLoading(false);
         }
@@ -42,7 +72,7 @@ export default function Companies() {
 
     const filtered = companies.filter((company) =>
         [company.full_name, company.email, company.id]
-            .filter(Boolean)
+            .filter((value) => value !== null && value !== undefined)
             .join(" ")
             .toLowerCase()
             .includes(search.toLowerCase())
@@ -54,6 +84,7 @@ export default function Companies() {
                 <Link to="/admin" className="admin-logo">
                     Job<span>Hub</span>
                 </Link>
+
                 <nav className="admin-nav">
                     <Link to="/admin">🏠 Dashboard</Link>
                     <Link to="/admin/job-approvals">✅ Job Approvals</Link>
@@ -71,11 +102,19 @@ export default function Companies() {
             <main className="admin-main">
                 <header className="admin-header">
                     <div>
-                        <h1>Registered <span>Companies</span> 🏢</h1>
+                        <h1>
+                            Registered <span>Companies</span> 🏢
+                        </h1>
                         <p>View companies that have joined JobHub.</p>
                     </div>
-                    <button className="admin-btn" onClick={loadCompanies}>
-                        ↻ Refresh
+
+                    <button
+                        type="button"
+                        className="admin-btn"
+                        onClick={loadCompanies}
+                        disabled={loading}
+                    >
+                        {loading ? "Loading..." : "↻ Refresh"}
                     </button>
                 </header>
 
@@ -99,27 +138,41 @@ export default function Companies() {
                             <h2>Company Directory</h2>
                             <p>Search registered company accounts.</p>
                         </div>
+
                         <input
                             className="admin-search"
                             type="search"
                             placeholder="Search companies..."
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={(event) => setSearch(event.target.value)}
+                            aria-label="Search companies"
                         />
                     </div>
 
-                    {error && <div className="admin-error">{error}</div>}
+                    {error && (
+                        <div className="admin-error" role="alert">
+                            <p>{error}</p>
+                            <button
+                                type="button"
+                                className="admin-btn"
+                                onClick={loadCompanies}
+                                disabled={loading}
+                            >
+                                Try again
+                            </button>
+                        </div>
+                    )}
 
                     {loading ? (
                         <p>Loading companies...</p>
-                    ) : filtered.length === 0 ? (
+                    ) : error ? null : filtered.length === 0 ? (
                         <div className="admin-empty">
                             <span>🏢</span>
                             <h3>No companies found</h3>
                             <p>
-                                Registered company accounts will appear here
-                                with their registered contact details and
-                                join dates.
+                                {companies.length === 0
+                                    ? "Registered company accounts will appear here with their contact details and join dates."
+                                    : "Try changing your search."}
                             </p>
                         </div>
                     ) : (
@@ -133,6 +186,7 @@ export default function Companies() {
                                         <th>Joined JobHub</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
                                     {filtered.map((company) => (
                                         <tr key={company.id}>
@@ -142,11 +196,11 @@ export default function Companies() {
                                                         🏢
                                                     </span>
                                                     <strong>
-                                                        {company.full_name}
+                                                        {company.full_name || "Unnamed company"}
                                                     </strong>
                                                 </div>
                                             </td>
-                                            <td>{company.email}</td>
+                                            <td>{company.email || "—"}</td>
                                             <td>#{company.id}</td>
                                             <td>
                                                 {company.created_at

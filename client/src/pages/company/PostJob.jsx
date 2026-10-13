@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./PostJob.css";
 
-const API = "http://localhost:5000";
+const API = (
+    import.meta.env.VITE_API_URL || "http://localhost:5000"
+).replace(/\/+$/, "");
 
 function PostJob() {
     const navigate = useNavigate();
@@ -20,12 +22,10 @@ function PostJob() {
     });
 
     const handleChange = (e) => {
-
         setJob({
             ...job,
             [e.target.name]: e.target.value
         });
-
     };
 
     const handleSubmit = async (e) => {
@@ -85,15 +85,12 @@ function PostJob() {
 
     return (
         <div className="dashboard-page">
-
             <aside className="sidebar">
-
                 <div className="sidebar-logo">
                     Job<span>Hub</span>
                 </div>
 
                 <nav>
-
                     <button onClick={() => navigate("/company/dashboard")}>
                         🏠 Dashboard
                     </button>
@@ -109,7 +106,6 @@ function PostJob() {
                     <button onClick={() => navigate("/company/jobs")}>
                         💼 My Jobs
                     </button>
-
                 </nav>
 
                 <button
@@ -118,13 +114,10 @@ function PostJob() {
                 >
                     ↪ Logout
                 </button>
-
             </aside>
 
             <main className="dashboard-main">
-
                 <div className="form-container">
-
                     <div className="page-title">
                         <h1>Post a New Job</h1>
                         <p>
@@ -148,10 +141,8 @@ function PostJob() {
                         <h2>Job Information</h2>
 
                         <div className="form-grid">
-
                             <div className="form-group full">
                                 <label>Job Title *</label>
-
                                 <input
                                     name="title"
                                     value={job.title}
@@ -163,7 +154,6 @@ function PostJob() {
 
                             <div className="form-group full">
                                 <label>Job Description *</label>
-
                                 <textarea
                                     name="description"
                                     value={job.description}
@@ -176,7 +166,6 @@ function PostJob() {
 
                             <div className="form-group full">
                                 <label>Required Skills *</label>
-
                                 <input
                                     name="skills"
                                     value={job.skills}
@@ -188,7 +177,6 @@ function PostJob() {
 
                             <div className="form-group">
                                 <label>Salary *</label>
-
                                 <input
                                     name="salary"
                                     value={job.salary}
@@ -200,7 +188,6 @@ function PostJob() {
 
                             <div className="form-group">
                                 <label>Location *</label>
-
                                 <input
                                     name="location"
                                     value={job.location}
@@ -212,23 +199,19 @@ function PostJob() {
 
                             <div className="form-group">
                                 <label>Job Type *</label>
-
                                 <select
                                     name="type"
                                     value={job.type}
                                     onChange={handleChange}
                                     required
                                 >
-                                    <option value="">
-                                        Select type
-                                    </option>
+                                    <option value="">Select type</option>
                                     <option>Full Time</option>
                                     <option>Part Time</option>
                                     <option>Internship</option>
                                     <option>Remote</option>
                                 </select>
                             </div>
-
                         </div>
 
                         <div className="approval-note">
@@ -241,13 +224,10 @@ function PostJob() {
                         </div>
 
                         <div className="form-actions">
-
                             <button
                                 type="button"
                                 className="secondary-btn"
-                                onClick={() =>
-                                    navigate("/company/dashboard")
-                                }
+                                onClick={() => navigate("/company/dashboard")}
                             >
                                 Cancel
                             </button>
@@ -259,13 +239,9 @@ function PostJob() {
                             >
                                 {loading ? "Submitting..." : "Submit for Approval"}
                             </button>
-
                         </div>
-
                     </form>
-
                 </div>
-
             </main>
         </div>
     );

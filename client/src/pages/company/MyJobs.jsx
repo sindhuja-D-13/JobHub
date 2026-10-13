@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./MyJobs.css";
 
-const API = "http://localhost:5000";
+const API = (
+    import.meta.env.VITE_API_URL || "http://localhost:5000"
+).replace(/\/+$/, "");
 
 export default function MyJobs() {
     const navigate = useNavigate();

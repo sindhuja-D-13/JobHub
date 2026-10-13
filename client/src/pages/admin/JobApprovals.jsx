@@ -1,9 +1,11 @@
-
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./AdminDashboard.css";
 
-const API = "http://localhost:5000";
+const API = (
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:5000"
+).replace(/\/+$/, "");
 
 export default function JobApprovals() {
     const [jobs, setJobs] = useState([]);
@@ -17,21 +19,44 @@ export default function JobApprovals() {
 
         try {
             const token = localStorage.getItem("token");
-            if (!token) throw new Error("Please sign in first.");
 
-            const response = await fetch(
-                `${API}/api/admin/jobs/pending`,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+            if (!token) {
+                throw new Error("Please sign in first.");
+            }
 
-            const data = await response.json();
+            const response = await fetch(`${API}/api/admin/jobs/pending`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const data = await response.json().catch(() => ({}));
+
             if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error(
+                        "Your session may have expired. Please sign in again."
+                    );
+                }
+
+                if (response.status === 403) {
+                    throw new Error(
+                        "You do not have permission to review jobs."
+                    );
+                }
+
                 throw new Error(data.message || "Unable to load jobs.");
             }
 
-            setJobs(Array.isArray(data) ? data : []);
+            if (!Array.isArray(data)) {
+                throw new Error("Unexpected response from the server.");
+            }
+
+            setJobs(data);
         } catch (err) {
-            setError(err.message || "Unable to load jobs.");
+            console.error("Pending jobs loading error:", err);
+            setError(err.message || "Unable to load jobs. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -53,21 +78,38 @@ export default function JobApprovals() {
 
         try {
             const token = localStorage.getItem("token");
+
+            if (!token) {
+                throw new Error("Please sign in first.");
+            }
+
             const response = await fetch(
                 `${API}/api/admin/jobs/${jobId}/status`,
                 {
                     method: "PATCH",
                     headers: {
                         Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ status })
+                    body: JSON.stringify({ status }),
                 }
             );
 
-            const data = await response.json();
+            const data = await response.json().catch(() => ({}));
 
             if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error(
+                        "Your session may have expired. Please sign in again."
+                    );
+                }
+
+                if (response.status === 403) {
+                    throw new Error(
+                        "You do not have permission to change this job's status."
+                    );
+                }
+
                 throw new Error(data.message || "Unable to update job.");
             }
 
@@ -75,7 +117,8 @@ export default function JobApprovals() {
                 previous.filter((job) => job.id !== jobId)
             );
         } catch (err) {
-            setError(err.message || "Unable to update job.");
+            console.error("Job status update error:", err);
+            setError(err.message || "Unable to update job. Please try again.");
         } finally {
             setBusyId(null);
         }
@@ -111,11 +154,19 @@ export default function JobApprovals() {
             <main className="admin-main">
                 <header className="admin-header">
                     <div>
-                        <h1>Job <span>Approvals</span> ✅</h1>
+                        <h1>
+                            Job <span>Approvals</span> ✅
+                        </h1>
                         <p>Review and manage jobs submitted by companies.</p>
                     </div>
-                    <button className="admin-btn" onClick={loadJobs}>
-                        ↻ Refresh
+
+                    <button
+                        type="button"
+                        className="admin-btn"
+                        onClick={loadJobs}
+                        disabled={loading}
+                    >
+                        {loading ? "Loading..." : "↻ Refresh"}
                     </button>
                 </header>
 
@@ -133,7 +184,19 @@ export default function JobApprovals() {
                     </div>
                 </section>
 
-                {error && <div className="admin-error">{error}</div>}
+                {error && (
+                    <div className="admin-error" role="alert">
+                        <p>{error}</p>
+                        <button
+                            type="button"
+                            className="admin-btn"
+                            onClick={loadJobs}
+                            disabled={loading}
+                        >
+                            Try again
+                        </button>
+                    </div>
+                )}
 
                 <section className="admin-panel">
                     <div className="admin-panel-header">
@@ -145,7 +208,7 @@ export default function JobApprovals() {
 
                     {loading ? (
                         <p>Loading pending jobs...</p>
-                    ) : jobs.length === 0 ? (
+                    ) : error ? null : jobs.length === 0 ? (
                         <div className="admin-empty">
                             <span>🎉</span>
                             <h3>No pending jobs</h3>
@@ -157,11 +220,11 @@ export default function JobApprovals() {
                                 <article className="admin-record" key={job.id}>
                                     <div className="admin-record-heading">
                                         <div>
-                                            <h3>{job.title}</h3>
+                                            <h3>{job.title || "Untitled job"}</h3>
                                             <p>
-                                                {job.company_name || "Company"}{" "}
+                                                {job.company_name || "Company"}
                                                 {job.location
-                                                    ? `• ${job.location}`
+                                                    ? ` • ${job.location}`
                                                     : ""}
                                             </p>
                                         </div>
@@ -171,7 +234,7 @@ export default function JobApprovals() {
                                     </div>
 
                                     <p className="admin-record-description">
-                                        {job.description}
+                                        {job.description || "No description provided."}
                                     </p>
 
                                     <div className="admin-record-meta">
@@ -191,6 +254,7 @@ export default function JobApprovals() {
 
                                     <div className="admin-record-actions">
                                         <button
+                                            type="button"
                                             className="admin-btn"
                                             disabled={busyId === job.id}
                                             onClick={() =>
@@ -203,13 +267,16 @@ export default function JobApprovals() {
                                         </button>
 
                                         <button
+                                            type="button"
                                             className="admin-btn admin-btn-danger"
                                             disabled={busyId === job.id}
                                             onClick={() =>
                                                 updateStatus(job.id, "rejected")
                                             }
                                         >
-                                            ✕ Reject
+                                            {busyId === job.id
+                                                ? "Processing..."
+                                                : "✕ Reject"}
                                         </button>
                                     </div>
                                 </article>

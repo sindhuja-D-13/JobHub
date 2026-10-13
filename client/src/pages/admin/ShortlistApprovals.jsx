@@ -2,7 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./AdminDashboard.css";
 
-const API = "http://localhost:5000";
+const API = (
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:5000"
+).replace(/\/+$/, "");
 
 export default function ShortlistApprovals() {
     const [applications, setApplications] = useState([]);
@@ -17,21 +20,41 @@ export default function ShortlistApprovals() {
 
         try {
             const token = localStorage.getItem("token");
-            if (!token) throw new Error("Please sign in first.");
+
+            if (!token) {
+                throw new Error("Please sign in first.");
+            }
 
             const response = await fetch(
                 `${API}/api/admin/shortlist-approvals`,
                 {
-                    headers: { Authorization: "Bearer " + token }
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
             );
-            const data = await response.json();
+
+            const data = await response.json().catch(() => ({}));
 
             if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error(
+                        "Your session may have expired. Please sign in again."
+                    );
+                }
+
+                if (response.status === 403) {
+                    throw new Error(
+                        "You do not have permission to view shortlist approvals."
+                    );
+                }
+
                 throw new Error(
                     data.message || "Unable to load shortlist approvals."
                 );
             }
+
             if (!Array.isArray(data)) {
                 throw new Error("The server returned an unexpected response.");
             }
@@ -51,29 +74,45 @@ export default function ShortlistApprovals() {
         loadApplications();
     }, [loadApplications]);
 
-    async function recordDecision(applicationId, decision) {
+    async function recordDecision(applicationId, approval) {
         setUpdatingId(applicationId);
         setError("");
         setMessage("");
 
         try {
             const token = localStorage.getItem("token");
-            if (!token) throw new Error("Please sign in first.");
+
+            if (!token) {
+                throw new Error("Please sign in first.");
+            }
 
             const response = await fetch(
-                `${API}/api/admin/applications/${applicationId}/shortlist`,
+                `${API}/api/admin/applications/${applicationId}/approval`,
                 {
-                    method: "PUT",
+                    method: "PATCH",
                     headers: {
-                        Authorization: "Bearer " + token,
-                        "Content-Type": "application/json"
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ decision })
+                    body: JSON.stringify({ approval }),
                 }
             );
-            const data = await response.json();
+
+            const data = await response.json().catch(() => ({}));
 
             if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error(
+                        "Your session may have expired. Please sign in again."
+                    );
+                }
+
+                if (response.status === 403) {
+                    throw new Error(
+                        "You do not have permission to make this decision."
+                    );
+                }
+
                 throw new Error(
                     data.message || "Unable to save the shortlist decision."
                 );
@@ -101,6 +140,7 @@ export default function ShortlistApprovals() {
                 <Link to="/admin" className="admin-logo">
                     Job<span>Hub</span>
                 </Link>
+
                 <nav className="admin-nav">
                     <Link to="/admin">🏠 Dashboard</Link>
                     <Link to="/admin/job-approvals">✅ Job Approvals</Link>
@@ -116,22 +156,39 @@ export default function ShortlistApprovals() {
             <main className="admin-main">
                 <header className="admin-header">
                     <div>
-                        <h1>Shortlist <span>Approvals</span> ⭐</h1>
+                        <h1>
+                            Shortlist <span>Approvals</span> ⭐
+                        </h1>
                         <p>
                             Review candidates shortlisted by companies and
                             record a decision.
                         </p>
                     </div>
-                    <button className="admin-btn" onClick={loadApplications}>
-                        ↻ Refresh
+
+                    <button
+                        type="button"
+                        className="admin-btn"
+                        onClick={loadApplications}
+                        disabled={loading}
+                    >
+                        {loading ? "Loading..." : "↻ Refresh"}
                     </button>
                 </header>
 
                 {error && (
                     <div className="admin-error" role="alert">
-                        {error}
+                        <p>{error}</p>
+                        <button
+                            type="button"
+                            className="admin-btn"
+                            onClick={loadApplications}
+                            disabled={loading}
+                        >
+                            Try again
+                        </button>
                     </div>
                 )}
+
                 {message && (
                     <div className="admin-success" role="status">
                         {message}
@@ -151,7 +208,7 @@ export default function ShortlistApprovals() {
 
                     {loading ? (
                         <p>Loading shortlist approvals...</p>
-                    ) : applications.length === 0 ? (
+                    ) : error ? null : applications.length === 0 ? (
                         <div className="admin-empty">
                             <span>⭐</span>
                             <h3>No candidates to review</h3>
@@ -173,6 +230,7 @@ export default function ShortlistApprovals() {
                                         <th>Decision</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
                                     {applications.map((application) => {
                                         const pending =
@@ -185,40 +243,49 @@ export default function ShortlistApprovals() {
                                             <tr key={application.id}>
                                                 <td>
                                                     <strong>
-                                                        {application.student_name}
+                                                        {application.student_name ||
+                                                            "Unknown student"}
                                                     </strong>
                                                     <small>
-                                                        {application.student_email}
+                                                        {application.student_email ||
+                                                            "—"}
                                                     </small>
                                                 </td>
                                                 <td>
-                                                    {application.job_title}
+                                                    {application.job_title || "—"}
                                                 </td>
                                                 <td>
-                                                    {application.company_name}
+                                                    {application.company_name || "—"}
                                                 </td>
                                                 <td>
                                                     <span
-                                                        className={`admin-badge ${application.status}`}
+                                                        className={`admin-badge ${String(
+                                                            application.status || ""
+                                                        ).toLowerCase()}`}
                                                     >
-                                                        {application.status}
+                                                        {application.status ||
+                                                            "Unknown"}
                                                     </span>
                                                 </td>
                                                 <td>
                                                     <span
-                                                        className={`admin-badge ${application.admin_approval}`}
+                                                        className={`admin-badge ${String(
+                                                            application.admin_approval ||
+                                                                ""
+                                                        ).toLowerCase()}`}
                                                     >
-                                                        {application.admin_approval}
+                                                        {application.admin_approval ||
+                                                            "Not set"}
                                                     </span>
                                                 </td>
                                                 <td>
                                                     {pending ? (
                                                         <div className="shortlist-actions">
                                                             <button
+                                                                type="button"
                                                                 className="admin-btn admin-btn-danger"
                                                                 disabled={
-                                                                    updatingId !==
-                                                                        null
+                                                                    updatingId !== null
                                                                 }
                                                                 onClick={() =>
                                                                     recordDecision(
@@ -227,13 +294,17 @@ export default function ShortlistApprovals() {
                                                                     )
                                                                 }
                                                             >
-                                                                Reject
+                                                                {updatingId ===
+                                                                application.id
+                                                                    ? "Processing..."
+                                                                    : "Reject"}
                                                             </button>
+
                                                             <button
+                                                                type="button"
                                                                 className="admin-btn"
                                                                 disabled={
-                                                                    updatingId !==
-                                                                        null
+                                                                    updatingId !== null
                                                                 }
                                                                 onClick={() =>
                                                                     recordDecision(
@@ -242,7 +313,10 @@ export default function ShortlistApprovals() {
                                                                     )
                                                                 }
                                                             >
-                                                                Approve
+                                                                {updatingId ===
+                                                                application.id
+                                                                    ? "Processing..."
+                                                                    : "Approve"}
                                                             </button>
                                                         </div>
                                                     ) : (

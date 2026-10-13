@@ -1,13 +1,11 @@
-
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./CompanyDashboard.css";
-
-const API_URL = "http://localhost:5000";
-
+const API_URL = (
+    import.meta.env.VITE_API_URL || "http://localhost:5000"
+).replace(/\/+$/, "");
 export default function CompanyDashboard() {
     const navigate = useNavigate();
-
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -25,19 +23,16 @@ export default function CompanyDashboard() {
     const [profileMessage, setProfileMessage] = useState("");
     const [profileMessageType, setProfileMessageType] = useState("");
     const [savingName, setSavingName] = useState(false);
-
     useEffect(() => {
         async function loadJobs() {
             try {
                 setLoading(true);
                 setError("");
-
                 const token = localStorage.getItem("token");
                 const user = JSON.parse(
                     localStorage.getItem("user") || "null"
                 );
                 setCompanyUser(user);
-
                 // Check the login session.
                 if (!token || !user?.id) {
                     setError(
@@ -45,7 +40,6 @@ export default function CompanyDashboard() {
                     );
                     return;
                 }
-
                 // Allow only company accounts on this dashboard.
                 if (
                     user.role &&
@@ -56,7 +50,6 @@ export default function CompanyDashboard() {
                     );
                     return;
                 }
-
                 // Fetch company jobs using the saved authentication token.
                 const response = await fetch(
                     `${API_URL}/api/company/jobs`,
@@ -68,26 +61,22 @@ export default function CompanyDashboard() {
                         },
                     }
                 );
-
                 if (response.status === 401) {
                     setError(
                         "Your session is invalid or expired. Please sign in again."
                     );
                     return;
                 }
-
                 if (response.status === 403) {
                     setError(
                         "You are not authorized to access company jobs."
                     );
                     return;
                 }
-
                 if (!response.ok) {
                     const data = await response.json().catch(() => ({}));
                     throw new Error(data.message || "Could not load your jobs.");
                 }
-
                 const data = await response.json();
                 if (!Array.isArray(data)) {
                     throw new Error("The server returned an unexpected jobs response.");
@@ -103,31 +92,25 @@ export default function CompanyDashboard() {
                 setLoading(false);
             }
         }
-
         loadJobs();
     }, []);
-
     async function handleSaveName(event) {
         event.preventDefault();
         setProfileMessage("");
         setProfileMessageType("");
-
         const cleanName = nameInput.trim();
         if (!cleanName) {
             setProfileMessage("Please enter your name.");
             setProfileMessageType("error");
             return;
         }
-
         const token = localStorage.getItem("token");
         if (!token) {
             setProfileMessage("Your session has expired. Please sign in again.");
             setProfileMessageType("error");
             return;
         }
-
         setSavingName(true);
-
         try {
             const response = await fetch(`${API_URL}/api/account/profile`, {
                 method: "PUT",
@@ -138,14 +121,12 @@ export default function CompanyDashboard() {
                 body: JSON.stringify({ name: cleanName })
             });
             const data = await response.json().catch(() => ({}));
-
             if (!response.ok) {
                 throw new Error(data.message || "Unable to update your name.");
             }
             if (!data.user) {
                 throw new Error("The server did not return your updated profile.");
             }
-
             setCompanyUser(data.user);
             setNameInput(data.user.name);
             localStorage.setItem("user", JSON.stringify(data.user));
@@ -160,20 +141,16 @@ export default function CompanyDashboard() {
             setSavingName(false);
         }
     }
-
     function handleLogout() {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
         navigate("/");
     }
-
     const totalJobs = jobs.length;
     const recentJobs = jobs.slice(0, 5);
-
     const pendingJobs = jobs.filter(
         (job) => job.status === "pending"
     ).length;
-
     const stats = [
         {
             icon: "💼",
@@ -204,7 +181,6 @@ export default function CompanyDashboard() {
             link: "/company/jobs",
         },
     ];
-
     return (
         <div className="company-layout">
             <header className="company-navbar">
@@ -217,7 +193,6 @@ export default function CompanyDashboard() {
                         Job<span>Hub</span>
                     </span>
                 </Link>
-
                 <nav className="company-nav">
                     <Link
                         className="nav-link active"
@@ -225,21 +200,18 @@ export default function CompanyDashboard() {
                     >
                         Dashboard
                     </Link>
-
                     <Link
                         className="nav-link"
                         to="/company/post-job"
                     >
                         ＋ Post Job
                     </Link>
-
                     <Link
                         className="nav-link"
                         to="/company/applications"
                     >
                         ▤ Applications
                     </Link>
-
                     <Link
                         className="nav-link"
                         to="/company/jobs"
@@ -247,7 +219,6 @@ export default function CompanyDashboard() {
                         My Jobs
                     </Link>
                 </nav>
-
                 <button
                     className="logout-button"
                     onClick={handleLogout}
@@ -255,21 +226,17 @@ export default function CompanyDashboard() {
                     ↪ Logout
                 </button>
             </header>
-
             <main className="company-main">
                 <section className="company-heading">
                     <div>
                         <p className="eyebrow">
                             COMPANY WORKSPACE
                         </p>
-
                         <h1>Company Dashboard 🏢</h1>
-
                         <p>
                             Manage your jobs and find the right candidates.
                         </p>
                     </div>
-
                     <Link
                         to="/company/post-job"
                         className="primary-button"
@@ -277,7 +244,6 @@ export default function CompanyDashboard() {
                         + Post a New Job
                     </Link>
                 </section>
-
                 <section className="company-account-card">
                     <div className="company-account-avatar">
                         {(companyUser?.name || companyUser?.full_name || "C")
@@ -372,7 +338,6 @@ export default function CompanyDashboard() {
                         </button>
                     )}
                 </section>
-
                 <section className="stats-grid">
                     {stats.map((stat) => (
                         <Link
@@ -385,17 +350,14 @@ export default function CompanyDashboard() {
                             >
                                 {stat.icon}
                             </div>
-
                             <div className="stat-content">
                                 <p>{stat.label}</p>
                                 <h2>{stat.value}</h2>
                             </div>
-
                             <span className="stat-arrow">→</span>
                         </Link>
                     ))}
                 </section>
-
                 <section className="jobs-panel">
                     <div className="panel-heading">
                         <div>
@@ -404,7 +366,6 @@ export default function CompanyDashboard() {
                                 Review the jobs posted by your company.
                             </p>
                         </div>
-
                         <Link
                             to="/company/jobs"
                             className="text-link"
@@ -412,19 +373,16 @@ export default function CompanyDashboard() {
                             View all jobs →
                         </Link>
                     </div>
-
                     {loading && (
                         <p className="state-message">
                             Loading jobs...
                         </p>
                     )}
-
                     {!loading && error && (
                         <div>
                             <p className="state-message error-message">
                                 {error}
                             </p>
-
                             {(error.includes("sign in") ||
                               error.includes("session")) && (
                                 <button
@@ -436,18 +394,14 @@ export default function CompanyDashboard() {
                             )}
                         </div>
                     )}
-
                     {!loading && !error && jobs.length === 0 && (
                         <div className="empty-state">
                             <div className="empty-icon">📋</div>
-
                             <h3>No jobs posted yet</h3>
-
                             <p>
                                 Create your first job posting to start
                                 receiving applications.
                             </p>
-
                             <Link
                                 to="/company/post-job"
                                 className="primary-button"
@@ -456,7 +410,6 @@ export default function CompanyDashboard() {
                             </Link>
                         </div>
                     )}
-
                     {!loading && !error && recentJobs.length > 0 && (
                         <div className="table-wrapper">
                             <table className="jobs-table">
@@ -470,24 +423,20 @@ export default function CompanyDashboard() {
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-
                                 <tbody>
                                     {recentJobs.map((job) => (
                                         <tr key={job.id}>
                                             <td>
                                                 <strong>{job.title}</strong>
                                             </td>
-
                                             <td>
                                                 {job.job_type ||
                                                     "Not specified"}
                                             </td>
-
                                             <td>
                                                 {job.location ||
                                                     "Not specified"}
                                             </td>
-
                                             <td>
                                                 {job.created_at
                                                     ? new Date(
@@ -495,7 +444,6 @@ export default function CompanyDashboard() {
                                                       ).toLocaleDateString()
                                                     : "—"}
                                             </td>
-
                                             <td>
                                                 <span
                                                     className={`status-badge ${
@@ -507,7 +455,6 @@ export default function CompanyDashboard() {
                                                         "pending"}
                                                 </span>
                                             </td>
-
                                             <td>
                                                 <Link
                                                     to="/company/applications"
